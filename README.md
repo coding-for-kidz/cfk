@@ -1,2 +1,2 @@
 # CFK
-The coding for Kidz CLI.
+The Coding for Kidz CLI.
