@@ -52,14 +52,31 @@ const run = async () => {
                     console.log(chalk.yellow('Nothing to commit.'))
                 }
             }
+            try {
+                const goTo = execSync('cd cfk', {encoding: 'utf-8', stdio: 'inherit'})
+                const commit = execSync('git commit -S -am "' + commitName + '"', {
+                    encoding: 'utf-8',
+                    stdio: 'inherit'
+                });
+            } catch (e) {
+                console.log(chalk.yellow('Possibly cannot sign commit attempting to commit unsigned commit'));
+                try {
+                    const commit = execSync('git commit -am "' + commitName + '"', {
+                        encoding: 'utf-8',
+                        stdio: 'inherit'
+                    });
+                } catch (e) {
+                    console.log(chalk.yellow('Nothing to commit.'))
+                }
+            }
 
             try {
                 console.log(chalk.magenta("Pulling files from Heroku"));
-                const pull_heroku = execSync('git pull heroku main', {encoding: 'utf-8', stdio: 'inherit'});
+                const pull_heroku = execSync('git pull heroku main --recurse-submodules=on-demand', {encoding: 'utf-8', stdio: 'inherit'});
                 console.log(chalk.magenta("Pulling files from Github"));
 
                 try {
-                    const pull_github = execSync('git pull origin main', {encoding: 'utf-8', stdio: 'inherit'});
+                    const pull_github = execSync('git pull origin main --recurse-submodules=on-demand', {encoding: 'utf-8', stdio: 'inherit'});
                 } catch (e) {
                     console.log("Github remote may not be configured");
                     const pull_github = execSync('git remote add origin https://github.com/arihant2math/coding-for-kidz-project/', {
@@ -70,11 +87,11 @@ const run = async () => {
 
                 console.log(chalk.magenta("Pushing files to Heroku"));
 
-                const push_heroku = execSync('git push heroku main', {encoding: 'utf-8', stdio: 'inherit'});
+                const push_heroku = execSync('git push heroku main --recurse-submodules=on-demand', {encoding: 'utf-8', stdio: 'inherit'});
 
                 console.log(chalk.magenta("Pushing files to Github"));
 
-                const push_github = execSync('git push origin main', {encoding: 'utf-8', stdio: 'inherit'});
+                const push_github = execSync('git push origin main --recurse-submodules=on-demand', {encoding: 'utf-8', stdio: 'inherit'});
             } catch (e) {
                 console.log('Push or Pull failed \n ' + e);
                 code = 1;
