@@ -25,5 +25,5 @@ jobs:
       uses: actions/setup-node@v2
       with:
         node-version: ${{ matrix.node-version }}
-    - run: npm install . -G
-    - run: node cfk testcfk # Tests cfk
+    - run: npm install # Installs dependencies
+    - run: node index.js testcfk # Tests cfk
