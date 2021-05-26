@@ -31,40 +31,24 @@ const run = async () => {
                 )
             );
 
+
             console.log(chalk.magenta("Adding files"));
 
 
-            execSync('git add .', {encoding: 'utf-8', stdio: 'inherit'});
+            execSync('git add .', {encoding: 'utf-8', stdio: 'inherit'}); // adds files
             console.log(chalk.magenta("Commiting files"));
             try {
-                const commit = execSync('git commit -S -am "' + commitName + '"', {
+                execSync('git commit -S -am "' + commitName + '"', {
                     encoding: 'utf-8',
                     stdio: 'inherit'
-                });
+                }); // Uses signing
             } catch (e) {
                 console.log(chalk.yellow('Possibly cannot sign commit attempting to commit unsigned commit'));
                 try {
                     const commit = execSync('git commit -am "' + commitName + '"', {
                         encoding: 'utf-8',
                         stdio: 'inherit'
-                    });
-                } catch (e) {
-                    console.log(chalk.yellow('Nothing to commit.'))
-                }
-            }
-            try {
-                const goTo = execSync('cd cfk', {encoding: 'utf-8', stdio: 'inherit'})
-                const commit = execSync('git commit -S -am "' + commitName + '"', {
-                    encoding: 'utf-8',
-                    stdio: 'inherit'
-                });
-            } catch (e) {
-                console.log(chalk.yellow('Possibly cannot sign commit attempting to commit unsigned commit'));
-                try {
-                    const commit = execSync('git commit -am "' + commitName + '"', {
-                        encoding: 'utf-8',
-                        stdio: 'inherit'
-                    });
+                    }); // Commits files without signing them
                 } catch (e) {
                     console.log(chalk.yellow('Nothing to commit.'))
                 }
@@ -72,11 +56,11 @@ const run = async () => {
 
             try {
                 console.log(chalk.magenta("Pulling files from Heroku"));
-                const pull_heroku = execSync('git pull heroku main --recurse-submodules=on-demand', {encoding: 'utf-8', stdio: 'inherit'});
+                const pull_heroku = execSync('git pull heroku main', {encoding: 'utf-8', stdio: 'inherit'});
                 console.log(chalk.magenta("Pulling files from Github"));
 
                 try {
-                    const pull_github = execSync('git pull origin main --recurse-submodules=on-demand', {encoding: 'utf-8', stdio: 'inherit'});
+                    const pull_github = execSync('git pull origin main', {encoding: 'utf-8', stdio: 'inherit'});
                 } catch (e) {
                     console.log("Github remote may not be configured");
                     const pull_github = execSync('git remote add origin https://github.com/arihant2math/coding-for-kidz-project/', {
