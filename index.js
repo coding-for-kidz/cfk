@@ -112,7 +112,8 @@ const run = async () => {
             }
 
         } else if (toDo === "install requirements") {
-            execSync('pip install -r dev_requirements.txt', {encoding: 'utf-8', stdio: 'inherit'});
+            execSync('pip-compile dev-requirements.in', {encoding: 'utf-8', stdio: 'inherit'});
+            execSync('pip install -r dev-requirements.txt', {encoding: 'utf-8', stdio: 'inherit'});
         } else if (toDo === "update") {
             execSync('start powershell -Command "D:; cd documents/programming/github/coding-for-kidz-project/cfk; npm install . -G; exit"', {
                 encoding: 'utf-8',
