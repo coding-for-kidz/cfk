@@ -56,14 +56,14 @@ const run = async () => {
 
             try {
                 console.log(chalk.magenta("Pulling files from Heroku"));
-                const pull_heroku = execSync('git pull heroku main', {encoding: 'utf-8', stdio: 'inherit'});
+                execSync('git pull heroku main', {encoding: 'utf-8', stdio: 'inherit'});
                 console.log(chalk.magenta("Pulling files from Github"));
 
                 try {
-                    const pull_github = execSync('git pull origin main', {encoding: 'utf-8', stdio: 'inherit'});
+                    execSync('git pull origin main', {encoding: 'utf-8', stdio: 'inherit'});
                 } catch (e) {
                     console.log("Github remote may not be configured");
-                    const pull_github = execSync('git remote add origin https://github.com/arihant2math/coding-for-kidz-project/', {
+                    execSync('git remote add origin https://github.com/arihant2math/coding-for-kidz-project/', {
                         encoding: 'utf-8',
                         stdio: 'inherit'
                     });
@@ -71,18 +71,17 @@ const run = async () => {
 
                 console.log(chalk.magenta("Pushing files to Heroku"));
 
-                const push_heroku = execSync('git push heroku main --recurse-submodules=on-demand', {encoding: 'utf-8', stdio: 'inherit'});
+                execSync('git push heroku main --recurse-submodules=on-demand', {encoding: 'utf-8', stdio: 'inherit'});
 
                 console.log(chalk.magenta("Pushing files to Github"));
 
-                const push_github = execSync('git push origin main --recurse-submodules=on-demand', {encoding: 'utf-8', stdio: 'inherit'});
+                execSync('git push origin main --recurse-submodules=on-demand', {encoding: 'utf-8', stdio: 'inherit'});
             } catch (e) {
                 console.log('Push or Pull failed \n ' + e);
                 code = 1;
             }
         } else if (toDo === "test") {
-            const test = execSync('pytest .', {
-                encoding: 'utf-8',
+            execSync('pytest .', {encoding: 'utf-8',
                 stdio: 'inherit'
             });
         } else if (toDo === "run") {
@@ -100,7 +99,7 @@ const run = async () => {
 
             if (p === "no") {
                 console.log(chalk.magenta("Running a webserver on 127.00.0.1 port 5000, press Ctrl-C to quit."));
-                const run = execSync('python run.py', {encoding: 'utf-8', stdio: 'inherit'});
+                execSync('python run.py', {encoding: 'utf-8', stdio: 'inherit'});
             } else {
                 const os = require('os');
                 if (os.type() === "Windows_NT") {
@@ -108,26 +107,26 @@ const run = async () => {
                     // const run = execSync('start powershell -Command "wsl; cd mnt/"'+'', { encoding: 'utf-8', stdio: 'inherit' });
                     code = 1;
                 } else {
-                    const run = execSync('gunicorn wsgi:app', {encoding: 'utf-8', stdio: 'inherit'});
+                    execSync('gunicorn wsgi:app', {encoding: 'utf-8', stdio: 'inherit'});
                 }
             }
 
         } else if (toDo === "install requirements") {
-            const install = execSync('pip install -r dev_requirements.txt', {encoding: 'utf-8', stdio: 'inherit'});
+            execSync('pip install -r dev_requirements.txt', {encoding: 'utf-8', stdio: 'inherit'});
         } else if (toDo === "update") {
-            const update = execSync('start powershell -Command "D:; cd documents/programming/github/coding-for-kidz-project/cfk; npm install . -G; exit"', {
+            execSync('start powershell -Command "D:; cd documents/programming/github/coding-for-kidz-project/cfk; npm install . -G; exit"', {
                 encoding: 'utf-8',
                 stdio: 'inherit'
             });
         } else if (toDo === "build") {
-            const build = execSync('docker build . -t coding-for-kidz', {encoding: 'utf-8', stdio: 'inherit'});
+            execSync('docker build . -t coding-for-kidz', {encoding: 'utf-8', stdio: 'inherit'});
         }
 
 
         if (code === 0) {
-            console.log(chalk.green("DONE"));
+            return (chalk.green("DONE"));
         } else if (code === 1) {
-            console.log(chalk.red("EXITED WITH AN ERROR"));
+            return chalk.red("EXITED WITH AN ERROR");
         }
     }
     else {
@@ -136,6 +135,7 @@ const run = async () => {
 };
 try {
     let r = run();
+    console.log(r);
 }
 catch (e) {
     console.log(chalk.red("EXITED WITH AN ERROR"));
