@@ -119,8 +119,9 @@ const run = async () => {
                 encoding: 'utf-8',
                 stdio: 'inherit'
             });
-        } else if (toDo === "build") {
-            execSync('docker build . -t coding-for-kidz', {encoding: 'utf-8', stdio: 'inherit'});
+        } else if (toDo === "docker build and run") {
+            execSync('docker compose build', {encoding: 'utf-8', stdio: 'inherit'});
+            execSync('docker compose up', {encoding: 'utf-8', stdio: 'inherit'});
         }
 
 
