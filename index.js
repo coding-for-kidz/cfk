@@ -31,11 +31,7 @@ const run = async () => {
                 )
             );
 
-
-            console.log(chalk.magenta("Adding files"));
-
-
-            execSync('git add .', {encoding: 'utf-8', stdio: 'inherit'}); // adds files
+            
             console.log(chalk.magenta("Commiting files"));
             try {
                 execSync('git commit -S -am "' + commitName + '"', {
@@ -112,21 +108,42 @@ const run = async () => {
             }
 
         } else if (toDo === "install requirements") {
-            execSync('pip-compile dev-requirements.in', {encoding: 'utf-8', stdio: 'inherit'});
-            execSync('pip install -r dev-requirements.txt', {encoding: 'utf-8', stdio: 'inherit'});
+            try {
+                execSync('pip-compile dev-requirements.in', {encoding: 'utf-8', stdio: 'inherit'});
+                execSync('pip install -r dev-requirements.txt', {encoding: 'utf-8', stdio: 'inherit'});
+            }
+            catch (e) {
+                execSync('pip install -r dev-requirements.txt', {encoding: 'utf-8', stdio: 'inherit'});
+            }
         } else if (toDo === "update") {
-            execSync('start powershell -Command "D:; cd documents/programming/github/coding-for-kidz-project/cfk; npm install . -G; exit"', {
-                encoding: 'utf-8',
-                stdio: 'inherit'
-            });
+            if (os.type() === "Windows_NT") {
+                execSync('C:&& cd documents/github/coding-for-kidz-project/cfk&& npm install . -G&& exit', {
+                    encoding: 'utf-8',
+                    stdio: 'inherit'
+                });
+            }
+            else {
+                execSync('cd documents/github/coding-for-kidz-project/cfk; npm install . -G; exit', {
+                    encoding: 'utf-8',
+                    stdio: 'inherit'
+                });
+            }
         } else if (toDo === "build and run") {
+            console.log(chalk.magenta("Building and running with docker-compose"));
             execSync('docker compose build', {encoding: 'utf-8', stdio: 'inherit'});
-            execSync('docker compose up', {encoding: 'utf-8', stdio: 'inherit'});
+            try {
+                execSync('docker compose up', {encoding: 'utf-8', stdio: 'inherit'});
+            }
+            catch (e) {
+                console.log(chalk.magenta("Containers have not been shut down. Shutting down containers before starting them up."));
+                execSync('docker compose down -v', {encoding: 'utf-8', stdio: 'inherit'});
+                execSync('docker compose up', {encoding: 'utf-8', stdio: 'inherit'});
+            }
         }
 
 
         if (code === 0) {
-            return (chalk.green("DONE"));
+            return chalk.green("DONE");
         } else if (code === 1) {
             return chalk.red("EXITED WITH AN ERROR");
         }

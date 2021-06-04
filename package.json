@@ -1,6 +1,6 @@
 {
   "name": "cfk",
-  "version": "7.3.1",
+  "version": "7.3.2",
   "description": "The Coding for Kidz CLI speeds up the development of The Coding for Kidz Project.",
   "main": "index.js",
   "scripts": {
