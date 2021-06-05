@@ -57,7 +57,8 @@ const run = async () => {
 
                 try {
                     execSync('git pull origin main', {encoding: 'utf-8', stdio: 'inherit'});
-                } catch (e) {
+                } 
+                catch (e) {
                     console.log("Github remote may not be configured");
                     execSync('git remote add origin https://github.com/arihant2math/coding-for-kidz-project/', {
                         encoding: 'utf-8',
