@@ -13,7 +13,7 @@ const inquirer = require('./lib/inquirer');
 
 const run = async () => {
     const argv = require('minimist')(process.argv.slice(2));
-    if (!(argv['_'][0]==("testcfk"))) {
+    if (!(argv['_'][0]==("testcfk"))) { // for testing purposes
 
         let code = 0;
         const action = await inquirer.askWhatToDO();
@@ -135,9 +135,6 @@ const run = async () => {
         } else if (code === 1) {
             return chalk.red("EXITED WITH AN ERROR");
         }
-    }
-    else {
-
     }
 };
 try {
