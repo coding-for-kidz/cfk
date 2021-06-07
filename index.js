@@ -116,19 +116,6 @@ const run = async () => {
             catch (e) {
                 execSync('pip install -r dev-requirements.txt', {encoding: 'utf-8', stdio: 'inherit'});
             }
-        } else if (toDo === "update") {
-            if (os.type() === "Windows_NT") {
-                execSync('C:&& cd documents/github/coding-for-kidz-project/cfk&& npm install . -G&& exit', {
-                    encoding: 'utf-8',
-                    stdio: 'inherit'
-                });
-            }
-            else {
-                execSync('cd documents/github/coding-for-kidz-project/cfk; npm install . -G; exit', {
-                    encoding: 'utf-8',
-                    stdio: 'inherit'
-                });
-            }
         } else if (toDo === "build and run") {
             console.log(chalk.magenta("Building and running with docker-compose"));
             execSync('docker compose build', {encoding: 'utf-8', stdio: 'inherit'});
