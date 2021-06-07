@@ -31,7 +31,10 @@ const run = async () => {
                 )
             );
 
-            
+            execSync('git add .', {
+                encoding: 'utf-8',
+                stdio: 'inherit'
+            }); // Adds files
             console.log(chalk.magenta("Commiting files"));
             try {
                 execSync('git commit -S -am "' + commitName + '"', {
