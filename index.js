@@ -1,16 +1,6 @@
 const chalk = require('chalk');
 const figlet = require('figlet');
 const execSync = require('child_process').execSync;
-const Configstore = require('conf');
-const conf = new Configstore('cfk');
-
-if (conf.get('setup') == undefined) {
-    conf.set('setup', true)
-    var setup = true;
-}
-else {
-    var setup = false;
-}
 
 console.clear();
 
@@ -24,10 +14,6 @@ const inquirer = require('./lib/inquirer');
 const run = async () => {
     const argv = require('minimist')(process.argv.slice(2));
     if (!(argv['_'][0]==("testcfk"))) { // for testing purposes
-        if (setup) {
-            const where = await inquirer.askWhere();
-            conf.set("path", where);
-        }
         let code = 0;
         const action = await inquirer.askWhatToDO();
         let toDo = action.do;
@@ -97,6 +83,9 @@ const run = async () => {
             execSync('pytest .', {encoding: 'utf-8',
                 stdio: 'inherit'
             });
+        } else if (toDo === 'update'){
+            const where = await inquirer.askWhere()
+            const path = where.where() 
         } else if (toDo === "run") {
 
             const production = await inquirer.askProduction();
