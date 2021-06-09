@@ -83,9 +83,6 @@ const run = async () => {
             execSync('pytest .', {encoding: 'utf-8',
                 stdio: 'inherit'
             });
-        } else if (toDo === 'update'){
-            const where = await inquirer.askWhere()
-            const path = where.where() 
         } else if (toDo === "run") {
 
             const production = await inquirer.askProduction();
