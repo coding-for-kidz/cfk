@@ -58,11 +58,11 @@ const run = async () => {
                 console.log(chalk.magenta("Pulling commits from Github"));
 
                 try {
-                    execSync('git pull origin main', {encoding: 'utf-8', stdio: 'inherit'});
+                    execSync('git pull github main', {encoding: 'utf-8', stdio: 'inherit'});
                 } 
                 catch (e) {
                     console.log("Github remote may not be configured");
-                    execSync('git remote add origin https://github.com/arihant2math/coding-for-kidz-project/', {
+                    execSync('git remote add origin https://github.com/coding-for-kidz/coding-for-kidz-project/', {
                         encoding: 'utf-8',
                         stdio: 'inherit'
                     });
@@ -74,7 +74,7 @@ const run = async () => {
 
                 console.log(chalk.magenta("Pushing commits to Github"));
 
-                execSync('git push origin main --recurse-submodules=on-demand', {encoding: 'utf-8', stdio: 'inherit'});
+                execSync('git push github main --recurse-submodules=on-demand', {encoding: 'utf-8', stdio: 'inherit'});
             } catch (e) {
                 console.log('Push or Pull failed \n ' + e);
                 code = 1;
