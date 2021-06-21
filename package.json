@@ -1,6 +1,6 @@
 {
   "name": "cfk",
-  "version": "7.4.0a1",
+  "version": "7.3.7",
   "description": "The Coding for Kidz CLI speeds up the development of The Coding for Kidz Project.",
   "main": "index.js",
   "scripts": {
@@ -12,10 +12,8 @@
   "dependencies": {
     "chalk": "^4.1.1",
     "cjs": "^0.0.11",
-    "conf": "^10.0.1",
-    "configstore": "^6.0.0",
     "figlet": "^1.5.0",
-    "inquirer": "^8.1.0",
+    "inquirer": "^8.1.1",
     "minimist": "^1.2.5"
   }
 }

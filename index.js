@@ -53,9 +53,9 @@ const run = async () => {
             }
 
             try {
-                console.log(chalk.magenta("Pulling files from Heroku"));
+                console.log(chalk.magenta("Pulling commits from Heroku"));
                 execSync('git pull heroku main', {encoding: 'utf-8', stdio: 'inherit'});
-                console.log(chalk.magenta("Pulling files from Github"));
+                console.log(chalk.magenta("Pulling commits from Github"));
 
                 try {
                     execSync('git pull github main', {encoding: 'utf-8', stdio: 'inherit'});
@@ -68,11 +68,11 @@ const run = async () => {
                     });
                 }
 
-                console.log(chalk.magenta("Pushing files to Heroku"));
+                console.log(chalk.magenta("Pushing commits to Heroku"));
 
                 execSync('git push heroku main --recurse-submodules=on-demand', {encoding: 'utf-8', stdio: 'inherit'});
 
-                console.log(chalk.magenta("Pushing files to Github"));
+                console.log(chalk.magenta("Pushing commits to Github"));
 
                 execSync('git push github main --recurse-submodules=on-demand', {encoding: 'utf-8', stdio: 'inherit'});
             } catch (e) {
@@ -83,9 +83,6 @@ const run = async () => {
             execSync('pytest .', {encoding: 'utf-8',
                 stdio: 'inherit'
             });
-        } else if (toDo === 'update'){
-            const where = await inquirer.askWhere()
-            const path = where.where() 
         } else if (toDo === "run") {
 
             const production = await inquirer.askProduction();
@@ -105,7 +102,8 @@ const run = async () => {
             } else {
                 const os = require('os');
                 if (os.type() === "Windows_NT") {
-                    console.log(chalk.yellow("Cannot run gunicorn on Windows NT " + os.release))
+                    console.log(chalk.yellow("Cannot run gunicorn on Windows NT " + os.release + " running with waitress"))
+                    execSync("waitress-serve --call 'app:app'", {encoding: 'uft-8', stdio: 'inherit'});
                     // const run = execSync('start powershell -Command "wsl; cd mnt/"'+'', { encoding: 'utf-8', stdio: 'inherit' });
                     code = 1;
                 } else {
