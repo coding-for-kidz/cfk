@@ -120,15 +120,19 @@ const run = async () => {
                 execSync('pip install -r dev-requirements.txt', {encoding: 'utf-8', stdio: 'inherit'});
             }
         } else if (toDo === "build and run") {
-            console.log(chalk.magenta("Building and running with docker-compose"));
+            console.log(chalk.magenta("Building and running with docker compose"));
             execSync('docker compose build', {encoding: 'utf-8', stdio: 'inherit'});
+            try {
+                execSync('docker compose down -v', {encoding: 'utf-8', stdio: 'inherit'});
+            }
+            catch (e) {
+
+            }
             try {
                 execSync('docker compose up', {encoding: 'utf-8', stdio: 'inherit'});
             }
             catch (e) {
-                console.log(chalk.magenta("Containers have not been shut down. Shutting down containers before starting them up."));
                 execSync('docker compose down -v', {encoding: 'utf-8', stdio: 'inherit'});
-                execSync('docker compose up', {encoding: 'utf-8', stdio: 'inherit'});
             }
         }
 
