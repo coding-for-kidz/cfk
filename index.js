@@ -29,7 +29,7 @@ const run = async () => {
                     figlet.textSync('Coding For Kidz', {horizontalLayout: 'full'})
                 )
             );
-
+            execSync('black .', { encoding: 'utf-8', stdio: 'inherit' }); // formats repository
             execSync('git add .', {
                 encoding: 'utf-8',
                 stdio: 'inherit'
@@ -48,7 +48,7 @@ const run = async () => {
                         stdio: 'inherit'
                     }); // Commits files without signing them
                 } catch (e) {
-                    console.log(chalk.yellow('Nothing to commit.'))
+                    console.log(chalk.yellow('Nothing to commit.')) // There probably isn't anything to commit
                 }
             }
 
@@ -65,7 +65,7 @@ const run = async () => {
                     execSync('git remote add github https://github.com/coding-for-kidz/coding-for-kidz-project/', {
                         encoding: 'utf-8',
                         stdio: 'inherit'
-                    });
+                    }); // Github remote might not be configured
                 }
 
                 console.log(chalk.magenta("Pushing commits to Heroku"));
