@@ -113,7 +113,8 @@ const run = async () => {
 
         } else if (toDo === "install requirements") {
             try {
-                execSync('pip-compile dev-requirements.in', {encoding: 'utf-8', stdio: 'inherit'});
+                 execSync('pip-compile requirements.in -U', {encoding: 'utf-8', stdio: 'inherit'});
+                execSync('pip-compile dev-requirements.in -U', {encoding: 'utf-8', stdio: 'inherit'});
                 execSync('pip install -r dev-requirements.txt', {encoding: 'utf-8', stdio: 'inherit'});
             }
             catch (e) {
