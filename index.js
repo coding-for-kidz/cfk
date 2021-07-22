@@ -80,7 +80,7 @@ const run = async () => {
                 code = 1;
             }
         } else if (toDo === "test") {
-            execSync('pytest .', {encoding: 'utf-8',
+            execSync('pytest . -v -n auto', {encoding: 'utf-8',
                 stdio: 'inherit'
             });
         } else if (toDo === "run") {
