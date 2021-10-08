@@ -98,7 +98,7 @@ const run = async () => {
 
             if (p === "no") {
                 console.log(chalk.magenta("Running a webserver on 127.00.0.1 port 5000, press Ctrl-C to quit."));
-                execSync('python run.py', {encoding: 'utf-8', stdio: 'inherit'});
+                execSync('python run.py --debug', {encoding: 'utf-8', stdio: 'inherit'});
             } else {
                 const os = require('os');
                 if (os.type() === "Windows_NT") {
