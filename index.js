@@ -151,4 +151,5 @@ try {
 }
 catch (e) {
     console.log(chalk.red("EXITED WITH AN ERROR"));
+    console.log(e);
 }
