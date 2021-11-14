@@ -10,10 +10,10 @@
   "author": "Ashwin Naren",
   "license": "MIT",
   "dependencies": {
-    "chalk": "^4.1.1",
+    "chalk": "^4.1.2",
     "cjs": "^0.0.11",
-    "figlet": "^1.5.0",
-    "inquirer": "^8.1.2",
+    "figlet": "^1.5.2",
+    "inquirer": "^8.2.0",
     "minimist": "^1.2.5"
   }
 }
