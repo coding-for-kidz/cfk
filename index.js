@@ -13,7 +13,7 @@ const inquirer = require('./lib/inquirer');
 
 const run = async () => {
     const argv = require('minimist')(process.argv.slice(2));
-    if (!(argv['_'][0]==("testcfk"))) { // for testing purposes
+    if (!(argv['_'][0]===("testcfk"))) { // for testing purposes
         let code = 0;
         const action = await inquirer.askWhatToDO();
         let toDo = action.do;
@@ -80,7 +80,7 @@ const run = async () => {
                 code = 1;
             }
         } else if (toDo === "test") {
-            execSync('pytest . -v -n auto', {encoding: 'utf-8',
+            execSync('pytest . -v', {encoding: 'utf-8',
                 stdio: 'inherit'
             });
         } else if (toDo === "run") {
@@ -146,8 +146,7 @@ const run = async () => {
     }
 };
 try {
-    let r = run();
-    console.log(r);
+    run().then(r => {console.log(r)});
 }
 catch (e) {
     console.log(chalk.red("EXITED WITH AN ERROR"));
