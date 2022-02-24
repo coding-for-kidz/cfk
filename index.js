@@ -1,6 +1,6 @@
-const chalk = require('chalk');
-const figlet = require('figlet');
-const execSync = require('child_process').execSync;
+const chalk = import('chalk');
+const figlet = import('figlet');
+const execSync = import('child_process').execSync;
 
 console.clear();
 
