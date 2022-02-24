@@ -1,6 +1,6 @@
-const chalk = import('chalk');
-const figlet = import('figlet');
-const execSync = import('child_process').execSync;
+import * as chalk from 'chalk';
+import * as figlet from 'figlet';
+const execSync = require('child_process').execSync;
 
 console.clear();
 
@@ -104,7 +104,6 @@ const run = async () => {
                 if (os.type() === "Windows_NT") {
                     console.log(chalk.yellow("Cannot run gunicorn on Windows NT " + os.release + " running with waitress"))
                     execSync("waitress-serve --call 'app:app'", {encoding: 'uft-8', stdio: 'inherit'});
-                    // const run = execSync('start powershell -Command "wsl; cd mnt/"'+'', { encoding: 'utf-8', stdio: 'inherit' });
                     code = 1;
                 } else {
                     execSync('gunicorn wsgi:app', {encoding: 'utf-8', stdio: 'inherit'});
