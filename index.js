@@ -1,5 +1,5 @@
-import * as chalk from 'chalk';
-import * as figlet from 'figlet';
+const chalk = require('chalk');
+const figlet = require('figlet');
 const execSync = require('child_process').execSync;
 
 console.clear();
