@@ -13,7 +13,7 @@ const inquirer = require('./lib/inquirer');
 
 const run = async () => {
     const argv = require('minimist')(process.argv.slice(2));
-    if (!(argv['_'][0]==("testcfk"))) { // for testing purposes
+    if (!(argv['_'][0]===("testcfk"))) { // for testing purposes
         let code = 0;
         const action = await inquirer.askWhatToDO();
         let toDo = action.do;
@@ -29,7 +29,7 @@ const run = async () => {
                     figlet.textSync('Coding For Kidz', {horizontalLayout: 'full'})
                 )
             );
-
+            execSync('black .', { encoding: 'utf-8', stdio: 'inherit' }); // formats repository
             execSync('git add .', {
                 encoding: 'utf-8',
                 stdio: 'inherit'
@@ -48,7 +48,7 @@ const run = async () => {
                         stdio: 'inherit'
                     }); // Commits files without signing them
                 } catch (e) {
-                    console.log(chalk.yellow('Nothing to commit.'))
+                    console.log(chalk.yellow('Nothing to commit.')) // There probably isn't anything to commit
                 }
             }
 
@@ -58,14 +58,14 @@ const run = async () => {
                 console.log(chalk.magenta("Pulling commits from Github"));
 
                 try {
-                    execSync('git pull origin main', {encoding: 'utf-8', stdio: 'inherit'});
+                    execSync('git pull github main', {encoding: 'utf-8', stdio: 'inherit'});
                 } 
                 catch (e) {
                     console.log("Github remote may not be configured");
-                    execSync('git remote add origin https://github.com/arihant2math/coding-for-kidz-project/', {
+                    execSync('git remote add github https://github.com/coding-for-kidz/coding-for-kidz-project/', {
                         encoding: 'utf-8',
                         stdio: 'inherit'
-                    });
+                    }); // Github remote might not be configured
                 }
 
                 console.log(chalk.magenta("Pushing commits to Heroku"));
@@ -74,13 +74,13 @@ const run = async () => {
 
                 console.log(chalk.magenta("Pushing commits to Github"));
 
-                execSync('git push origin main --recurse-submodules=on-demand', {encoding: 'utf-8', stdio: 'inherit'});
+                execSync('git push github main --recurse-submodules=on-demand', {encoding: 'utf-8', stdio: 'inherit'});
             } catch (e) {
                 console.log('Push or Pull failed \n ' + e);
                 code = 1;
             }
         } else if (toDo === "test") {
-            execSync('pytest .', {encoding: 'utf-8',
+            execSync('pytest . -v', {encoding: 'utf-8',
                 stdio: 'inherit'
             });
         } else if (toDo === "run") {
@@ -98,7 +98,7 @@ const run = async () => {
 
             if (p === "no") {
                 console.log(chalk.magenta("Running a webserver on 127.00.0.1 port 5000, press Ctrl-C to quit."));
-                execSync('python run.py', {encoding: 'utf-8', stdio: 'inherit'});
+                execSync('python run.py --debug', {encoding: 'utf-8', stdio: 'inherit'});
             } else {
                 const os = require('os');
                 if (os.type() === "Windows_NT") {
@@ -113,22 +113,27 @@ const run = async () => {
 
         } else if (toDo === "install requirements") {
             try {
-                execSync('pip-compile dev-requirements.in', {encoding: 'utf-8', stdio: 'inherit'});
+                 execSync('pip-compile requirements.in -U', {encoding: 'utf-8', stdio: 'inherit'});
+                execSync('pip-compile dev-requirements.in -U', {encoding: 'utf-8', stdio: 'inherit'});
                 execSync('pip install -r dev-requirements.txt', {encoding: 'utf-8', stdio: 'inherit'});
             }
             catch (e) {
                 execSync('pip install -r dev-requirements.txt', {encoding: 'utf-8', stdio: 'inherit'});
             }
         } else if (toDo === "build and run") {
-            console.log(chalk.magenta("Building and running with docker-compose"));
+            console.log(chalk.magenta("Building and running with docker compose"));
             execSync('docker compose build', {encoding: 'utf-8', stdio: 'inherit'});
+            try {
+                execSync('docker compose down -v', {encoding: 'utf-8', stdio: 'inherit'});
+            }
+            catch (e) {
+
+            }
             try {
                 execSync('docker compose up', {encoding: 'utf-8', stdio: 'inherit'});
             }
             catch (e) {
-                console.log(chalk.magenta("Containers have not been shut down. Shutting down containers before starting them up."));
                 execSync('docker compose down -v', {encoding: 'utf-8', stdio: 'inherit'});
-                execSync('docker compose up', {encoding: 'utf-8', stdio: 'inherit'});
             }
         }
 
@@ -141,9 +146,9 @@ const run = async () => {
     }
 };
 try {
-    let r = run();
-    console.log(r);
+    run().then(r => {console.log(r)});
 }
 catch (e) {
     console.log(chalk.red("EXITED WITH AN ERROR"));
+    console.log(e);
 }
