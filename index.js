@@ -10,11 +10,65 @@ console.log(
     )
 );
 const inquirer = require('./lib/inquirer');
-const os = require("os");
 
+const os = require('os');
+
+async function commitChanges(commitName) {
+        try {
+        execSync('git commit -S -m "' + commitName + '"', {
+            encoding: 'utf-8',
+            stdio: 'inherit'
+        }); // Uses signing
+    } catch (e) {
+        console.log(chalk.yellow('Possibly cannot sign commit attempting to commit unsigned commit'));
+        try {
+            const commit = execSync('git commit -m "' + commitName + '"', {
+                encoding: 'utf-8',
+                stdio: 'inherit'
+            }); // Commits files without signing them
+        } catch (e) {
+            console.log(chalk.yellow('Nothing to commit.')) // There probably isn't anything to commit
+        }
+    }
+}
+
+
+async function pushChanges(branchName) {
+    try {
+        console.log(chalk.magenta("Pulling commits from Heroku"));
+        execSync('git pull heroku ' + branchName, {encoding: 'utf-8', stdio: 'inherit'});
+        console.log(chalk.magenta("Pulling commits from Github"));
+
+        try {
+            execSync('git pull github ' + branchName, {encoding: 'utf-8', stdio: 'inherit'});
+        } catch (e) {
+            console.log("Github remote may not be configured");
+            execSync('git remote add github https://github.com/coding-for-kidz/coding-for-kidz-project/', {
+                encoding: 'utf-8',
+                stdio: 'inherit'
+            }); // Github remote might not be configured
+        }
+
+        console.log(chalk.magenta("Pushing commits to Heroku"));
+
+        execSync('git push heroku ' + branchName + ' --recurse-submodules=on-demand', {encoding: 'utf-8', stdio: 'inherit'});
+
+        console.log(chalk.magenta("Pushing commits to Github"));
+
+        execSync('git push github ' + branchName + ' --recurse-submodules=on-demand', {encoding: 'utf-8', stdio: 'inherit'});
+        return 0;
+    } catch (e) {
+        console.log('Push or Pull failed \n ' + e);
+        return 1;
+    }
+}
 async function gupdate() {
     const answers = await inquirer.askCommitName();
     const commitName = answers.commitname;
+
+    let branchName = execSync('git branch --no-color', {encoding: 'utf-8'});
+    branchName = branchName.substring(2, branchName.length - 1);
+
 
     console.clear();
 
@@ -29,49 +83,8 @@ async function gupdate() {
         stdio: 'inherit'
     }); // Adds files
     console.log(chalk.magenta("Commiting files"));
-    try {
-        execSync('git commit -S -am "' + commitName + '"', {
-            encoding: 'utf-8',
-            stdio: 'inherit'
-        }); // Uses signing
-    } catch (e) {
-        console.log(chalk.yellow('Possibly cannot sign commit attempting to commit unsigned commit'));
-        try {
-            const commit = execSync('git commit -am "' + commitName + '"', {
-                encoding: 'utf-8',
-                stdio: 'inherit'
-            }); // Commits files without signing them
-        } catch (e) {
-            console.log(chalk.yellow('Nothing to commit.')) // There probably isn't anything to commit
-        }
-    }
-
-    try {
-        console.log(chalk.magenta("Pulling commits from Heroku"));
-        execSync('git pull heroku main', {encoding: 'utf-8', stdio: 'inherit'});
-        console.log(chalk.magenta("Pulling commits from Github"));
-
-        try {
-            execSync('git pull github main', {encoding: 'utf-8', stdio: 'inherit'});
-        } catch (e) {
-            console.log("Github remote may not be configured");
-            execSync('git remote add github https://github.com/coding-for-kidz/coding-for-kidz-project/', {
-                encoding: 'utf-8',
-                stdio: 'inherit'
-            }); // Github remote might not be configured
-        }
-
-        console.log(chalk.magenta("Pushing commits to Heroku"));
-
-        execSync('git push heroku main --recurse-submodules=on-demand', {encoding: 'utf-8', stdio: 'inherit'});
-
-        console.log(chalk.magenta("Pushing commits to Github"));
-
-        execSync('git push github main --recurse-submodules=on-demand', {encoding: 'utf-8', stdio: 'inherit'});
-    } catch (e) {
-        console.log('Push or Pull failed \n ' + e);
-        code = 1;
-    }
+    await commitChanges(commitName);
+    return await pushChanges(branchName);
 }
 
 
@@ -139,7 +152,7 @@ const run = async () => {
         let toDo = action.do;
 
         if (toDo === "gupdate") {
-            await gupdate();
+            code = await gupdate();
         }
         else if (toDo === "test") {
             execSync('pytest . -v', {encoding: 'utf-8',
