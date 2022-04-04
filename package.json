@@ -13,7 +13,7 @@
     "chalk": "^5.0.0",
     "cjs": "^0.0.11",
     "figlet": "^1.5.2",
-    "inquirer": "^8.2.0",
-    "minimist": "^1.2.5"
+    "inquirer": "^8.2.2",
+    "minimist": "^1.2.6"
   }
 }
