@@ -1,4 +1,4 @@
-import('chalk');
+import 'chalk';
 const figlet = require('figlet');
 const execSync = require('child_process').execSync;
 
