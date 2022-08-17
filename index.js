@@ -14,7 +14,7 @@ const inquirer = require('./lib/inquirer');
 const os = require('os');
 
 async function commitChanges(commitName) {
-        try {
+    try {
         execSync('git commit -S -m "' + commitName + '"', {
             encoding: 'utf-8',
             stdio: 'inherit'
@@ -22,7 +22,7 @@ async function commitChanges(commitName) {
     } catch (e) {
         console.log(chalk.yellow('Possibly cannot sign commit attempting to commit unsigned commit'));
         try {
-            const commit = execSync('git commit -m "' + commitName + '"', {
+            execSync('git commit -m "' + commitName + '"', {
                 encoding: 'utf-8',
                 stdio: 'inherit'
             }); // Commits files without signing them
@@ -46,7 +46,7 @@ async function pushChanges(branchName) {
             execSync('git remote add github https://github.com/coding-for-kidz/coding-for-kidz-project/', {
                 encoding: 'utf-8',
                 stdio: 'inherit'
-            }); // Github remote might not be configured
+            }); // GitHub remote might not be configured
         }
 
         console.log(chalk.magenta("Pushing commits to Heroku"));
