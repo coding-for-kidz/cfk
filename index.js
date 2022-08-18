@@ -1,19 +1,17 @@
 const chalk = require('chalk');
-const figlet = require('figlet');
 const execSync = require('child_process').execSync;
+const vorpal = require('vorpal')();
 
 console.clear();
 
-console.log(
-    chalk.blue(
-        figlet.textSync('Coding For Kidz', {horizontalLayout: 'full'})
-    )
-);
-const inquirer = require('./lib/inquirer');
+// console.log(
+//     chalk.blue(
+//         figlet.textSync('Coding For Kidz', {horizontalLayout: 'full'})
+//     )
+// );
 
-const os = require('os');
 
-async function commitChanges(commitName) {
+function commitChanges(commitName) {
     try {
         execSync('git commit -S -m "' + commitName + '"', {
             encoding: 'utf-8',
@@ -22,7 +20,7 @@ async function commitChanges(commitName) {
     } catch (e) {
         console.log(chalk.yellow('Possibly cannot sign commit attempting to commit unsigned commit'));
         try {
-            execSync('git commit -m "' + commitName + '"', {
+            execSync('git commit -m "' + commitName + '" --no-gpg-sign', {
                 encoding: 'utf-8',
                 stdio: 'inherit'
             }); // Commits files without signing them
@@ -33,7 +31,7 @@ async function commitChanges(commitName) {
 }
 
 
-async function pushChanges(branchName) {
+function pushChanges(branchName) {
     try {
         console.log(chalk.magenta("Pulling commits from Heroku"));
         execSync('git pull heroku ' + branchName, {encoding: 'utf-8', stdio: 'inherit'});
@@ -49,60 +47,43 @@ async function pushChanges(branchName) {
             }); // GitHub remote might not be configured
         }
 
+        console.log(chalk.magenta("Pushing commits to Github"));
+
+        execSync('git push github ' + branchName + ' --recurse-submodules=on-demand', {encoding: 'utf-8', stdio: 'inherit'});
+
         console.log(chalk.magenta("Pushing commits to Heroku"));
 
         execSync('git push heroku ' + branchName + ' --recurse-submodules=on-demand', {encoding: 'utf-8', stdio: 'inherit'});
 
-        console.log(chalk.magenta("Pushing commits to Github"));
-
-        execSync('git push github ' + branchName + ' --recurse-submodules=on-demand', {encoding: 'utf-8', stdio: 'inherit'});
         return 0;
     } catch (e) {
         console.log('Push or Pull failed \n ' + e);
         return 1;
     }
 }
-async function gupdate() {
-    const answers = await inquirer.askCommitName();
-    const commitName = answers.commitname;
 
+function gupdate(commitName, format) {
+    if (commitName === undefined) {
+        return false;
+    }
     let branchName = execSync('git branch --no-color', {encoding: 'utf-8'});
     branchName = branchName.substring(2, branchName.length - 1);
-
-
-    console.clear();
-
-    console.log(
-        chalk.blue(
-            figlet.textSync('Coding For Kidz', {horizontalLayout: 'full'})
-        )
-    );
-    execSync('black .', {encoding: 'utf-8', stdio: 'inherit'}); // formats repository
+    if (format) {
+        execSync('black .', {encoding: 'utf-8', stdio: 'inherit'}); // formats repository
+    }
     execSync('git add .', {
         encoding: 'utf-8',
         stdio: 'inherit'
     }); // Adds files
-    console.log(chalk.magenta("Commiting files"));
-    await commitChanges(commitName);
-    return await pushChanges(branchName);
+    console.log(chalk.magenta("Committing files"));
+    commitChanges(commitName);
+    return pushChanges(branchName);
 }
 
-
-async function runServer() {
-    const production = await inquirer.askProduction();
-    let p = production.production;
-
-    console.clear();
-
-    console.log(
-        chalk.blue(
-            figlet.textSync('Coding For Kidz', {horizontalLayout: 'full'})
-        )
-    );
-
-    if (p === "no") {
+async function runServer(production) {
+    if (!production) {
         console.log(chalk.magenta("Running a webserver on 127.00.0.1 port 5000, press Ctrl-C to quit."));
-        execSync('python run.py --debug', {encoding: 'utf-8', stdio: 'inherit'});
+        execSync('python run.py -v 10 --debug', {encoding: 'utf-8', stdio: 'inherit'});
     } else {
         const os = require('os');
         if (os.type() === "Windows_NT") {
@@ -135,8 +116,9 @@ function docker() {
 
 function installRequirements() {
     try {
-         execSync('pip-compile requirements.in -U', {encoding: 'utf-8', stdio: 'inherit'});
+        execSync('pip-compile requirements.in -U', {encoding: 'utf-8', stdio: 'inherit'});
         execSync('pip-compile dev-requirements.in -U', {encoding: 'utf-8', stdio: 'inherit'});
+        execSync('pip install -r requirements.txt', {encoding: 'utf-8', stdio: 'inherit'});
         execSync('pip install -r dev-requirements.txt', {encoding: 'utf-8', stdio: 'inherit'});
     }
     catch (e) {
@@ -144,42 +126,42 @@ function installRequirements() {
     }
 }
 
-const run = async () => {
-    const argv = require('minimist')(process.argv.slice(2));
-    if (!(argv['_'][0]===("testcfk"))) { // for testing purposes
-        let code = 0;
-        const action = await inquirer.askWhatToDO();
-        let toDo = action.do;
+vorpal
+    .command('req', 'Installs the requirements.')
+    .action(function(args, callback) {
+        this.log(args)
+        installRequirements();
+        callback();
+    });
 
-        if (toDo === "gupdate") {
-            code = await gupdate();
-        }
-        else if (toDo === "test") {
-            execSync('pytest . -v', {encoding: 'utf-8',
-                stdio: 'inherit'
-            });
-        }
-        else if (toDo === "run") {
-            code = await runServer();
-        }
-        else if (toDo === "install requirements") {
-            installRequirements();
-        }
-        else if (toDo === "build and run") {
-            docker();
-        }
+vorpal
+    .command('docker <requiredArg>', 'Runs a docker container.')
+    .action(function(args, callback) {
+        let production = false
+        docker();
+        callback();
+    });
 
-        if (code === 0) {
-            return chalk.green("DONE");
-        } else if (code === 1) {
-            return chalk.red("EXITED WITH AN ERROR");
+vorpal
+    .command('run', 'Runs the server.')
+    .option('-p, --prod', 'Uses Production.')
+    .action(function (args, callback) {
+        runServer(args.options.prod);
+        callback();
+    })
+
+vorpal
+    .command('gupdate [commitName]', 'Sync with VCS.')
+    .autocomplete(["updates", "formatting"])
+    .option('-f --format', 'Format the files with black')
+    .action(function (args, callback) {
+        let gupdateResult = gupdate(args.commitName, args.options.format);
+        if (!gupdateResult) {
+            this.log("Commit name not specified");
         }
-    }
-};
-try {
-    run().then(r => {console.log(r)});
-}
-catch (e) {
-    console.log(chalk.red("EXITED WITH AN ERROR"));
-    console.log(e);
-}
+        callback();
+    })
+
+vorpal
+  .delimiter('cfk>')
+  .show();
