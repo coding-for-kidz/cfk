@@ -12,9 +12,10 @@
   "dependencies": {
     "chalk": "^4.1.2",
     "cjs": "^0.0.11",
+    "clear": "^0.1.0",
+    "clui": "^0.3.6",
     "figlet": "^1.5.2",
-    "inquirer": "^9.1.0",
-    "minimist": "^1.2.6",
+    "simple-git": "^3.12.0",
     "vorpal": "^1.12.0"
   }
 }
