@@ -1,29 +1,54 @@
-const chalk = require('chalk');
-const execSync = require('child_process').execSync;
-const vorpal = require('vorpal')();
+const chalk = require('chalk'); // Color
+const execSync = require('child_process').execSync; // Execute shell commands
+const execFileSync = require('child_process').execFileSync;
+const vorpal = require('vorpal')(); // Create shell
+const figlet = require('figlet'); // ASCII Art
+const path = require('path'); // Path manipulation
+const clear = require('clear'); // clear the terminal
+const CLI = require('clui');
+const clc = require('cli-color');
+const simpleGit = require('simple-git');
 
-console.clear();
+const options = {
+   baseDir: process.cwd().substring(0, process.cwd()),
+   binary: 'git',
+   maxConcurrentProcesses: 6,
+   trimmed: false,
+};
 
-// console.log(
-//     chalk.blue(
-//         figlet.textSync('Coding For Kidz', {horizontalLayout: 'full'})
-//     )
-// );
 
+// when setting all options in a single object
+const git = simpleGit(options);
+
+clear();
+
+console.log(
+    chalk.greenBright(
+        figlet.textSync('Coding For Kidz', {horizontalLayout: 'full'})
+    )
+);
+
+function run(command) {
+    execSync(command, {encoding: 'utf-8', stdio: 'inherit'});
+}
+
+function runCommand(exec, args) {
+    execFileSync(exec, args)
+}
+
+function getBranch() {
+    let branchName = execSync('git branch --no-color', {encoding: 'utf-8'});
+    branchName = branchName.substring(2, branchName.length - 1);
+    return branchName
+}
 
 function commitChanges(commitName) {
     try {
-        execSync('git commit -S -m "' + commitName + '"', {
-            encoding: 'utf-8',
-            stdio: 'inherit'
-        }); // Uses signing
+        run('git commit -S -m "' + commitName + '"');
     } catch (e) {
         console.log(chalk.yellow('Possibly cannot sign commit attempting to commit unsigned commit'));
         try {
-            execSync('git commit -m "' + commitName + '" --no-gpg-sign', {
-                encoding: 'utf-8',
-                stdio: 'inherit'
-            }); // Commits files without signing them
+            run('git commit -m "' + commitName + '" --no-gpg-sign'); // Commits files without signing them
         } catch (e) {
             console.log(chalk.yellow('Nothing to commit.')) // There probably isn't anything to commit
         }
@@ -34,26 +59,15 @@ function commitChanges(commitName) {
 function pushChanges(branchName) {
     try {
         console.log(chalk.magenta("Pulling commits from Heroku"));
-        execSync('git pull heroku ' + branchName, {encoding: 'utf-8', stdio: 'inherit'});
+        git.pull("heroku");
         console.log(chalk.magenta("Pulling commits from Github"));
-
-        try {
-            execSync('git pull github ' + branchName, {encoding: 'utf-8', stdio: 'inherit'});
-        } catch (e) {
-            console.log("Github remote may not be configured");
-            execSync('git remote add github https://github.com/coding-for-kidz/coding-for-kidz-project/', {
-                encoding: 'utf-8',
-                stdio: 'inherit'
-            }); // GitHub remote might not be configured
-        }
+        git.pull("github");
 
         console.log(chalk.magenta("Pushing commits to Github"));
-
-        execSync('git push github ' + branchName + ' --recurse-submodules=on-demand', {encoding: 'utf-8', stdio: 'inherit'});
+        git.push('github')
 
         console.log(chalk.magenta("Pushing commits to Heroku"));
-
-        execSync('git push heroku ' + branchName + ' --recurse-submodules=on-demand', {encoding: 'utf-8', stdio: 'inherit'});
+        git.push('heroku', branchName)
 
         return 0;
     } catch (e) {
@@ -66,15 +80,11 @@ function gupdate(commitName, format) {
     if (commitName === undefined) {
         return false;
     }
-    let branchName = execSync('git branch --no-color', {encoding: 'utf-8'});
-    branchName = branchName.substring(2, branchName.length - 1);
+    let branchName = getBranch();
     if (format) {
-        execSync('black .', {encoding: 'utf-8', stdio: 'inherit'}); // formats repository
+        run('black .'); // formats repository
     }
-    execSync('git add .', {
-        encoding: 'utf-8',
-        stdio: 'inherit'
-    }); // Adds files
+    git.add(["."]);
     console.log(chalk.magenta("Committing files"));
     commitChanges(commitName);
     return pushChanges(branchName);
@@ -83,15 +93,15 @@ function gupdate(commitName, format) {
 async function runServer(production) {
     if (!production) {
         console.log(chalk.magenta("Running a webserver on 127.00.0.1 port 5000, press Ctrl-C to quit."));
-        execSync('python run.py -v 10 --debug', {encoding: 'utf-8', stdio: 'inherit'});
+        run('python run.py -v 10 --debug');
     } else {
         const os = require('os');
         if (os.type() === "Windows_NT") {
             console.log(chalk.yellow("Cannot run gunicorn on Windows NT " + os.release + " running with waitress"))
-            execSync("waitress-serve --call 'app:app'", {encoding: 'uft-8', stdio: 'inherit'});
+            run("waitress-serve --call 'app:app'");
             return 1;
         } else {
-            execSync('gunicorn wsgi:app', {encoding: 'utf-8', stdio: 'inherit'});
+            run('gunicorn wsgi:app');
         }
     }
     return 0;
@@ -99,45 +109,75 @@ async function runServer(production) {
 
 function docker() {
     console.log(chalk.magenta("Building and running with docker compose"));
-    execSync('docker compose build', {encoding: 'utf-8', stdio: 'inherit'});
+    run('docker compose build');
     try {
-        execSync('docker compose down -v', {encoding: 'utf-8', stdio: 'inherit'});
+        run('docker compose down -v');
     }
     catch (e) {
 
     }
     try {
-        execSync('docker compose up', {encoding: 'utf-8', stdio: 'inherit'});
+        run('docker compose up');
     }
     catch (e) {
-        execSync('docker compose down -v', {encoding: 'utf-8', stdio: 'inherit'});
+        run('docker compose down -v');
     }
 }
 
 function installRequirements() {
     try {
-        execSync('pip-compile requirements.in -U', {encoding: 'utf-8', stdio: 'inherit'});
-        execSync('pip-compile dev-requirements.in -U', {encoding: 'utf-8', stdio: 'inherit'});
-        execSync('pip install -r requirements.txt', {encoding: 'utf-8', stdio: 'inherit'});
-        execSync('pip install -r dev-requirements.txt', {encoding: 'utf-8', stdio: 'inherit'});
+        run('pip-compile requirements.in -U');
+        run('pip-compile dev-requirements.in -U');
+        run('pip install -r requirements.txt');
+        run('pip install -r dev-requirements.txt');
     }
     catch (e) {
-        execSync('pip install -r dev-requirements.txt', {encoding: 'utf-8', stdio: 'inherit'});
+        run('pip install -r dev-requirements.txt');
     }
 }
+
+async function listOutdatedRequirements() {
+    run('pip list --outdated');
+}
+
+function changeDelimiter(newDelimiter) {
+    vorpal.delimiter(newDelimiter);
+    vorpal.ui.refresh();
+}
+
+vorpal
+    .command('cd', 'Changes your working directory')
+    .action(function(args, callback) {
+        this.log("Not Implemented");
+        callback();
+    })
+
+
+vorpal
+    .command('dir', 'Lists all files in working directory')
+    .action(function(args, callback) {
+        run("dir");
+        callback();
+    })
 
 vorpal
     .command('req', 'Installs the requirements.')
     .action(function(args, callback) {
-        this.log(args)
         installRequirements();
         callback();
     });
 
+
 vorpal
-    .command('docker <requiredArg>', 'Runs a docker container.')
+    .command('outdated', 'Lists outdated requirements')
     .action(function(args, callback) {
-        let production = false
+        let spinner = ['⣾', '⣽', '⣻', '⢿', '⡿', '⣟', '⣯', '⣷'];
+        listOutdatedRequirements().then(r => callback());
+    });
+
+vorpal
+    .command('docker', 'Runs a docker container.')
+    .action(function(args, callback) {
         docker();
         callback();
     });
@@ -163,5 +203,25 @@ vorpal
     })
 
 vorpal
-  .delimiter('cfk>')
+    .command('version', 'Prints the version')
+    .action(function(args, callback) {
+        this.log("CFK: v0.0.0\nNode: " + process.version);
+        callback();
+    })
+
+vorpal
+    .command('format', 'Formats with black')
+    .action(function(args, callback) {
+        run("black .");
+        callback();
+    })
+
+branch = chalk.magenta(getBranch());
+
+python = chalk.yellow(execSync("python --version", {encoding: "utf-8"}).replace(/(\r\n|\n|\r)/gm, ""))
+node = chalk.greenBright("Node " + process.version);
+
+vorpal
+  .delimiter(chalk.blue("Coding for Kidz") + " on " + branch + " via " + python + " via " +
+      node + "\n" + chalk.greenBright('\u203A'))
   .show();
